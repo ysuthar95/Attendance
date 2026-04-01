@@ -1,199 +1,183 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Attendance by Ys</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 
 <style>
 :root{
---primary:#4f46e5;
---bg:#f1f5f9;
+--primary:#1976d2;
+--secondary:#1565c0;
+--bg:#f4f6f9;
 --card:#ffffff;
---present:#22c55e;
---absent:#ef4444;
---text:#0f172a;
---muted:#64748b;
+--danger:#e53935;
+--success:#43a047;
 }
 
-/* RESET */
-*{margin:0;padding:0;box-sizing:border-box;}
+*{box-sizing:border-box;}
 
 body{
-font-family:system-ui,Segoe UI;
-background:linear-gradient(135deg,#4f46e5,#9333ea);
-min-height:100vh;
-display:flex;
-justify-content:center;
-align-items:flex-start;
+margin:0;
+font-family:'Poppins',sans-serif;
+background:var(--bg);
+}
+
+h2{
+margin:0;
+padding:15px;
+background:var(--primary);
+color:white;
+text-align:center;
+font-weight:500;
+}
+
+/* container */
+.main{
+max-width:700px;
+margin:auto;
 padding:15px;
 }
 
-/* MAIN CARD */
-.main{
-width:100%;
-max-width:420px;
-background:var(--card);
-border-radius:18px;
-padding:18px;
-box-shadow:0 20px 40px rgba(0,0,0,0.25);
-}
-
-/* TITLE */
-h2{
-text-align:center;
-font-size:22px;
-margin-bottom:15px;
-color:var(--text);
-font-weight:800;
-}
-
-/* INPUT */
+/* textarea */
 textarea{
 width:100%;
-border:2px solid #e2e8f0;
-border-radius:10px;
-padding:10px;
-font-size:15px;
-margin-bottom:12px;
-outline:none;
-}
-
-/* BUTTON GRID */
-.grid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:8px;
-margin-bottom:10px;
-}
-
-.grid button:first-child{
-grid-column:span 2;
-background:var(--primary);
-color:#fff;
 padding:12px;
-font-size:15px;
+border-radius:10px;
+border:1px solid #ccc;
+font-size:14px;
 }
 
-/* BUTTON */
+/* buttons */
 button{
 border:none;
-border-radius:8px;
-padding:10px;
-font-size:12px;
-font-weight:600;
-background:#e2e8f0;
-color:#334155;
+border-radius:10px;
+padding:10px 14px;
+margin:5px 3px;
+font-size:14px;
 cursor:pointer;
+background:var(--primary);
+color:white;
+box-shadow:0 2px 5px rgba(0,0,0,0.2);
+transition:0.2s;
 }
 
-button:active{transform:scale(0.96);}
-
-/* RESET BUTTON */
-.reset{
-display:flex;
-justify-content:center;
-margin:12px 0;
-}
-.reset button{
-background:var(--absent);
-color:#fff;
-width:70%;
+button:hover{
+background:var(--secondary);
 }
 
-/* STUDENTS */
+button.secondary{
+background:#607d8b;
+}
+
+button.danger{
+background:var(--danger);
+}
+
+button.success{
+background:var(--success);
+}
+
+/* toggle */
+#count-toggle.off{
+background:var(--danger);
+}
+
+/* student list */
+.container{
+margin-top:10px;
+}
+
 .student{
 display:flex;
 justify-content:space-between;
 align-items:center;
 padding:12px;
-border-radius:10px;
-margin-bottom:8px;
-font-weight:600;
+margin:8px 0;
+border-radius:12px;
+background:var(--card);
+box-shadow:0 2px 6px rgba(0,0,0,0.1);
+font-weight:500;
 transition:0.2s;
 }
 
-.present{background:#dcfce7;color:#166534;}
-.absent{background:#fee2e2;color:#991b1b;}
-
-.info{flex:1;font-size:15px;}
-
-.actions{display:flex;gap:6px;}
-
-.edit{
-font-size:11px;
-padding:5px 8px;
-background:#fff;
-border:1px solid #e2e8f0;
+.student.present{
+border-left:6px solid var(--success);
 }
 
-.delete{
-background:#fff1f2;
-color:#be123c;
-padding:5px 8px;
+.student.absent{
+border-left:6px solid var(--danger);
+background:#fdecea;
 }
 
-/* SUBMIT */
-.submit{
-width:100%;
-background:#10b981;
-color:#fff;
-font-size:16px;
-padding:12px;
-margin-top:10px;
+.student span{
+flex:1;
 }
 
-/* RESULT */
+/* small buttons */
+.edit-btn,.remove-btn{
+padding:6px 10px;
+font-size:12px;
+margin-left:5px;
+border-radius:8px;
+}
+
+.edit-btn{
+background:#ffb300;
+color:black;
+}
+
+.remove-btn{
+background:var(--danger);
+}
+
+/* result */
 #result{
-margin-top:10px;
-background:#f8fafc;
-padding:10px;
-border-radius:10px;
-font-size:14px;
+margin-top:20px;
+background:var(--card);
+padding:15px;
+border-radius:12px;
+box-shadow:0 2px 6px rgba(0,0,0,0.1);
 }
 
-/* WHATSAPP */
-#whatsapp{
+/* whatsapp */
+#whatsapp-share{
 display:none;
-margin-top:10px;
-background:#25D366;
-color:#fff;
 width:100%;
-padding:12px;
-border-radius:10px;
-font-weight:700;
+background:#25d366;
+margin-top:10px;
 }
 
-/* FIX BLOGGER */
-html,body{overflow-x:hidden!important;}
 </style>
 </head>
 
 <body>
 
-<div class="main">
 <h2>Attendance by Ys</h2>
 
-<textarea id="new-student" placeholder="Enter student names (one per line)"></textarea>
+<div class="main">
 
-<div class="grid">
-<button onclick="addStudent()">Add Students</button>
-<button onclick="deleteAllStudents()">Delete All</button>
-<button id="count-toggle" onclick="toggleCount()">Send Count: ON</button>
+<textarea id="new-student" placeholder="Enter student names (one per line)" rows="4"></textarea>
+
+<div>
+<button onclick="addStudent()">Add</button>
+<button class="danger" onclick="deleteAllStudents()">Delete All</button>
+<button class="secondary" onclick="resetAttendance()">Reset</button>
 <button onclick="sortByName()">Sort A-Z</button>
-<button onclick="sortByDate()">Newest</button>
+<button onclick="sortByDate()">Sort Date</button>
 </div>
 
-<div class="reset">
-<button onclick="resetAttendance()">Reset Attendance</button>
-</div>
+<button id="count-toggle" onclick="toggleCount()">Send Count: ON</button>
 
-<div id="students-list"></div>
+<div class="container" id="students-list"></div>
 
-<button class="submit" onclick="submitAttendance()">Submit Attendance</button>
+<button class="success" onclick="submitAttendance()">Submit Attendance</button>
 
 <div id="result"></div>
-<button id="whatsapp" onclick="shareOnWhatsApp()">Share on WhatsApp</button>
+
+<button id="whatsapp-share" onclick="shareOnWhatsApp()">Share on WhatsApp</button>
 
 </div>
 
@@ -203,7 +187,7 @@ const key="attendance_unlocked";
 if(!localStorage.getItem(key)){
 let pass="";
 while(pass!=="1234"){
-pass=prompt("Enter password:");
+pass=prompt("Enter password to access this file:");
 if(pass===null)document.body.innerHTML="";
 }
 localStorage.setItem(key,"yes");
@@ -213,12 +197,14 @@ localStorage.setItem(key,"yes");
 let students=JSON.parse(localStorage.getItem("students"))||["Yashpal","Suthar"];
 let attendance=JSON.parse(localStorage.getItem("attendance"))||{};
 let studentAddDates=JSON.parse(localStorage.getItem("studentAddDates"))||{};
+
 let sendCount=JSON.parse(localStorage.getItem("sendCount"));
 if(sendCount===null)sendCount=true;
 
 function updateToggleUI(){
 const b=document.getElementById("count-toggle");
 b.innerText=sendCount?"Send Count: ON":"Send Count: OFF";
+b.classList.toggle("off",!sendCount);
 }
 
 function toggleCount(){
@@ -242,28 +228,20 @@ d.className="student "+(attendance[name]==="absent"?"absent":"present");
 d.onclick=()=>toggleAttendance(name,d);
 
 const s=document.createElement("span");
-s.className="info";
 s.innerText=`${i+1}. ${name}`;
-
-const bg=document.createElement("div");
-bg.className="actions";
 
 const e=document.createElement("button");
 e.innerText="Edit";
-e.className="edit";
+e.className="edit-btn";
 e.onclick=x=>{x.stopPropagation();editStudent(i);};
 
 const r=document.createElement("button");
-r.innerText="🗑";
-r.className="delete";
+r.innerText="Remove";
+r.className="remove-btn";
 r.onclick=x=>{x.stopPropagation();removeStudent(i);};
 
-d.appendChild(s);
-bg.appendChild(e);
-bg.appendChild(r);
-d.appendChild(bg);
+d.appendChild(s);d.appendChild(e);d.appendChild(r);
 c.appendChild(d);
-
 if(!attendance[name])attendance[name]="present";
 });
 saveData();
@@ -278,7 +256,7 @@ saveData();
 
 function addStudent(){
 const input=document.getElementById("new-student").value.trim();
-if(!input)return alert("Enter names");
+if(!input)return alert("Please enter at least one name.");
 const names=input.split("\n").map(n=>n.trim()).filter(n=>n&&!students.includes(n));
 const now=new Date().toISOString();
 students.push(...names);
@@ -288,7 +266,7 @@ createStudentList();
 }
 
 function editStudent(i){
-const n=prompt("Edit:",students[i]);
+const n=prompt("Edit student name:",students[i]);
 if(n&&n.trim()){
 attendance[n]=attendance[students[i]];
 delete attendance[students[i]];
@@ -298,7 +276,7 @@ createStudentList();
 }
 
 function removeStudent(i){
-if(confirm("Remove?")){
+if(confirm(`Are you sure you want to remove ${students[i]}?`)){
 delete attendance[students[i]];
 delete studentAddDates[students[i]];
 students.splice(i,1);
@@ -307,14 +285,12 @@ createStudentList();
 }
 
 function resetAttendance(){
-if(confirm("Reset all?")){
 students.forEach(n=>attendance[n]="present");
 createStudentList();
 }
-}
 
 function deleteAllStudents(){
-if(confirm("Delete all?")){
+if(confirm("Are you sure you want to delete all students?")){
 students=[];attendance={};studentAddDates={};
 createStudentList();
 }
@@ -329,30 +305,41 @@ const total=students.length;
 const absent=absentStudents.length;
 const present=total-absent;
 
-const list=absentStudents.length?absentStudents.map((n,i)=>`<li>${i+1}. ${n}</li>`).join(""):"<li>None</li>";
+const list=absentStudents.length
+?absentStudents.map((n,i)=>`<li>${i+1}. ${n}</li>`).join("")
+:"<li>None</li>";
 
 document.getElementById("result").innerHTML=
-`<b>Absent List</b><ul>${list}</ul>
-Present: ${present} | Absent: ${absent} | Total: ${total}`;
+`<p><b>📌 Today's Attendance</b></p>
+<p><b>📍 Absent Students</b></p>
+<ul>${list}</ul>
+<p><b>Present Students:</b> ${present}</p>
+<p><b>Absent Students:</b> ${absent}</p>
+<p><b>Total Students:</b> ${total}</p>`;
 
-document.getElementById("whatsapp").style.display="block";
+document.getElementById("whatsapp-share").style.display="block";
 }
 
 function shareOnWhatsApp(){
 const absentStudents=students.filter(n=>attendance[n]==="absent");
+const total=students.length;
+const absent=absentStudents.length;
+const present=total-absent;
 const date=new Date().toLocaleDateString("en-GB");
 
-const absentText=absentStudents.length?absentStudents.map((n,i)=>`${i+1}. ${n}`).join("\n"):"None";
+const absentText=absentStudents.length
+?absentStudents.map((n,i)=>`${i+1}. ${n}`).join("\n")
+:"None";
 
-let msg=`Attendance (${date})\n\nAbsent:\n${absentText}`;
+let msg=
+`📌 *Today's Attendance (${date})*\n\n`+
+`📍 *Absent Students:*\n${absentText}`;
 
 if(sendCount){
-msg+=`\n\nPresent: ${students.length-absentStudents.length}
-Absent: ${students.length}
-Total: ${students.length}`;
+msg+=`\n\nPresent Students: ${present}\nAbsent Students: ${absent}\nTotal Students: ${total}`;
 }
 
-window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`);
+window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`,"_blank");
 }
 
 updateToggleUI();
