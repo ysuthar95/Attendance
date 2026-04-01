@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Attendance by Ys</title>
+
+<style>
+:root{
+--primary:#4f46e5;
+--bg:#f1f5f9;
+--card:#ffffff;
+--present:#22c55e;
+--absent:#ef4444;
+--text:#0f172a;
+--muted:#64748b;
+}
+
+/* RESET */
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+font-family:system-ui,Segoe UI;
+background:linear-gradient(135deg,#4f46e5,#9333ea);
+min-height:100vh;
+display:flex;
+justify-content:center;
+align-items:flex-start;
+padding:15px;
+}
+
+/* MAIN CARD */
+.main{
+width:100%;
+max-width:420px;
+background:var(--card);
+border-radius:18px;
+padding:18px;
+box-shadow:0 20px 40px rgba(0,0,0,0.25);
+}
+
+/* TITLE */
+h2{
+text-align:center;
+font-size:22px;
+margin-bottom:15px;
+color:var(--text);
+font-weight:800;
+}
+
+/* INPUT */
+textarea{
+width:100%;
+border:2px solid #e2e8f0;
+border-radius:10px;
+padding:10px;
+font-size:15px;
+margin-bottom:12px;
+outline:none;
+}
+
+/* BUTTON GRID */
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:8px;
+margin-bottom:10px;
+}
+
+.grid button:first-child{
+grid-column:span 2;
+background:var(--primary);
+color:#fff;
+padding:12px;
+font-size:15px;
+}
+
+/* BUTTON */
+button{
+border:none;
+border-radius:8px;
+padding:10px;
+font-size:12px;
+font-weight:600;
+background:#e2e8f0;
+color:#334155;
+cursor:pointer;
+}
+
+button:active{transform:scale(0.96);}
+
+/* RESET BUTTON */
+.reset{
+display:flex;
+justify-content:center;
+margin:12px 0;
+}
+.reset button{
+background:var(--absent);
+color:#fff;
+width:70%;
+}
+
+/* STUDENTS */
+.student{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:12px;
+border-radius:10px;
+margin-bottom:8px;
+font-weight:600;
+transition:0.2s;
+}
+
+.present{background:#dcfce7;color:#166534;}
+.absent{background:#fee2e2;color:#991b1b;}
+
+.info{flex:1;font-size:15px;}
+
+.actions{display:flex;gap:6px;}
+
+.edit{
+font-size:11px;
+padding:5px 8px;
+background:#fff;
+border:1px solid #e2e8f0;
+}
+
+.delete{
+background:#fff1f2;
+color:#be123c;
+padding:5px 8px;
+}
+
+/* SUBMIT */
+.submit{
+width:100%;
+background:#10b981;
+color:#fff;
+font-size:16px;
+padding:12px;
+margin-top:10px;
+}
+
+/* RESULT */
+#result{
+margin-top:10px;
+background:#f8fafc;
+padding:10px;
+border-radius:10px;
+font-size:14px;
+}
+
+/* WHATSAPP */
+#whatsapp{
+display:none;
+margin-top:10px;
+background:#25D366;
+color:#fff;
+width:100%;
+padding:12px;
+border-radius:10px;
+font-weight:700;
+}
+
+/* FIX BLOGGER */
+html,body{overflow-x:hidden!important;}
+</style>
+</head>
+
+<body>
+
+<div class="main">
+<h2>Attendance by Ys</h2>
+
+<textarea id="new-student" placeholder="Enter student names (one per line)"></textarea>
+
+<div class="grid">
+<button onclick="addStudent()">Add Students</button>
+<button onclick="deleteAllStudents()">Delete All</button>
+<button id="count-toggle" onclick="toggleCount()">Send Count: ON</button>
+<button onclick="sortByName()">Sort A-Z</button>
+<button onclick="sortByDate()">Newest</button>
+</div>
+
+<div class="reset">
+<button onclick="resetAttendance()">Reset Attendance</button>
+</div>
+
+<div id="students-list"></div>
+
+<button class="submit" onclick="submitAttendance()">Submit Attendance</button>
+
+<div id="result"></div>
+<button id="whatsapp" onclick="shareOnWhatsApp()">Share on WhatsApp</button>
+
+</div>
+
+<script>
+(function(){
+const key="attendance_unlocked";
+if(!localStorage.getItem(key)){
+let pass="";
+while(pass!=="1234"){
+pass=prompt("Enter password:");
+if(pass===null)document.body.innerHTML="";
+}
+localStorage.setItem(key,"yes");
+}
+})();
+
+let students=JSON.parse(localStorage.getItem("students"))||["Yashpal","Suthar"];
+let attendance=JSON.parse(localStorage.getItem("attendance"))||{};
+let studentAddDates=JSON.parse(localStorage.getItem("studentAddDates"))||{};
+let sendCount=JSON.parse(localStorage.getItem("sendCount"));
+if(sendCount===null)sendCount=true;
+
+function updateToggleUI(){
+const b=document.getElementById("count-toggle");
+b.innerText=sendCount?"Send Count: ON":"Send Count: OFF";
+}
+
+function toggleCount(){
+sendCount=!sendCount;
+localStorage.setItem("sendCount",JSON.stringify(sendCount));
+updateToggleUI();
+}
+
+function saveData(){
+localStorage.setItem("students",JSON.stringify(students));
+localStorage.setItem("attendance",JSON.stringify(attendance));
+localStorage.setItem("studentAddDates",JSON.stringify(studentAddDates));
+}
+
+function createStudentList(){
+const c=document.getElementById("students-list");
+c.innerHTML="";
+students.forEach((name,i)=>{
+const d=document.createElement("div");
+d.className="student "+(attendance[name]==="absent"?"absent":"present");
+d.onclick=()=>toggleAttendance(name,d);
+
+const s=document.createElement("span");
+s.className="info";
+s.innerText=`${i+1}. ${name}`;
+
+const bg=document.createElement("div");
+bg.className="actions";
+
+const e=document.createElement("button");
+e.innerText="Edit";
+e.className="edit";
+e.onclick=x=>{x.stopPropagation();editStudent(i);};
+
+const r=document.createElement("button");
+r.innerText="🗑";
+r.className="delete";
+r.onclick=x=>{x.stopPropagation();removeStudent(i);};
+
+d.appendChild(s);
+bg.appendChild(e);
+bg.appendChild(r);
+d.appendChild(bg);
+c.appendChild(d);
+
+if(!attendance[name])attendance[name]="present";
+});
+saveData();
+}
+
+function toggleAttendance(name,el){
+attendance[name]=attendance[name]==="present"?"absent":"present";
+el.classList.toggle("absent");
+el.classList.toggle("present");
+saveData();
+}
+
+function addStudent(){
+const input=document.getElementById("new-student").value.trim();
+if(!input)return alert("Enter names");
+const names=input.split("\n").map(n=>n.trim()).filter(n=>n&&!students.includes(n));
+const now=new Date().toISOString();
+students.push(...names);
+names.forEach(n=>{attendance[n]="present";studentAddDates[n]=now;});
+document.getElementById("new-student").value="";
+createStudentList();
+}
+
+function editStudent(i){
+const n=prompt("Edit:",students[i]);
+if(n&&n.trim()){
+attendance[n]=attendance[students[i]];
+delete attendance[students[i]];
+students[i]=n.trim();
+createStudentList();
+}
+}
+
+function removeStudent(i){
+if(confirm("Remove?")){
+delete attendance[students[i]];
+delete studentAddDates[students[i]];
+students.splice(i,1);
+createStudentList();
+}
+}
+
+function resetAttendance(){
+if(confirm("Reset all?")){
+students.forEach(n=>attendance[n]="present");
+createStudentList();
+}
+}
+
+function deleteAllStudents(){
+if(confirm("Delete all?")){
+students=[];attendance={};studentAddDates={};
+createStudentList();
+}
+}
+
+function sortByName(){students.sort();createStudentList();}
+function sortByDate(){students.sort((a,b)=>new Date(studentAddDates[a])-new Date(studentAddDates[b]));createStudentList();}
+
+function submitAttendance(){
+const absentStudents=students.filter(n=>attendance[n]==="absent");
+const total=students.length;
+const absent=absentStudents.length;
+const present=total-absent;
+
+const list=absentStudents.length?absentStudents.map((n,i)=>`<li>${i+1}. ${n}</li>`).join(""):"<li>None</li>";
+
+document.getElementById("result").innerHTML=
+`<b>Absent List</b><ul>${list}</ul>
+Present: ${present} | Absent: ${absent} | Total: ${total}`;
+
+document.getElementById("whatsapp").style.display="block";
+}
+
+function shareOnWhatsApp(){
+const absentStudents=students.filter(n=>attendance[n]==="absent");
+const date=new Date().toLocaleDateString("en-GB");
+
+const absentText=absentStudents.length?absentStudents.map((n,i)=>`${i+1}. ${n}`).join("\n"):"None";
+
+let msg=`Attendance (${date})\n\nAbsent:\n${absentText}`;
+
+if(sendCount){
+msg+=`\n\nPresent: ${students.length-absentStudents.length}
+Absent: ${students.length}
+Total: ${students.length}`;
+}
+
+window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`);
+}
+
+updateToggleUI();
+createStudentList();
+</script>
+
+</body>
+</html>
