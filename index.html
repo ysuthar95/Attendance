@@ -11,9 +11,9 @@
 :root{
 --primary:#1976d2;
 --secondary:#1565c0;
---bg:#f4f6f9;
+--bg:#f1f3f6;
 --card:#ffffff;
---danger:#d32f2f; /* slightly darker red */
+--danger:#d32f2f;
 --success:#43a047;
 }
 
@@ -27,7 +27,7 @@ background:var(--bg);
 
 h2{
 margin:0;
-padding:15px;
+padding:16px;
 background:var(--primary);
 color:white;
 text-align:center;
@@ -35,51 +35,45 @@ font-weight:500;
 }
 
 .main{
-max-width:700px;
-margin:auto;
-padding:15px;
+width:100%;
+max-width:100%;
+padding:12px;
 }
 
 textarea{
 width:100%;
-padding:12px;
+padding:14px;
 border-radius:10px;
 border:1px solid #ccc;
-font-size:14px;
+font-size:15px;
+margin-bottom:10px;
+}
+
+.btn-row{
+display:flex;
+flex-wrap:wrap;
+gap:8px;
+margin-bottom:8px;
 }
 
 button{
+flex:1;
+min-width:120px;
 border:none;
 border-radius:10px;
-padding:10px 14px;
-margin:5px 3px;
+padding:12px;
 font-size:14px;
 cursor:pointer;
 background:var(--primary);
 color:white;
 box-shadow:0 2px 5px rgba(0,0,0,0.2);
-transition:0.2s;
 }
 
-button:hover{
-background:var(--secondary);
-}
+button.secondary{background:#607d8b;}
+button.danger{background:var(--danger);}
+button.success{background:var(--success);}
 
-button.secondary{
-background:#607d8b;
-}
-
-button.danger{
-background:var(--danger);
-}
-
-button.success{
-background:var(--success);
-}
-
-#count-toggle.off{
-background:var(--danger);
-}
+#count-toggle.off{background:var(--danger);}
 
 .container{
 margin-top:10px;
@@ -87,15 +81,13 @@ margin-top:10px;
 
 .student{
 display:flex;
-justify-content:space-between;
 align-items:center;
-padding:12px;
+padding:14px;
 margin:8px 0;
 border-radius:12px;
 background:var(--card);
 box-shadow:0 2px 6px rgba(0,0,0,0.1);
 font-weight:500;
-transition:0.2s;
 }
 
 .student.present{
@@ -104,18 +96,21 @@ border-left:6px solid var(--success);
 
 .student.absent{
 border-left:6px solid var(--danger);
-background:#f8d7da; /* slightly darker than before */
+background:#f8d7da;
 }
 
 .student span{
 flex:1;
+font-size:15px;
 }
 
 .edit-btn,.remove-btn{
-padding:6px 10px;
-font-size:12px;
-margin-left:5px;
-border-radius:8px;
+padding:4px 8px;
+font-size:11px;
+margin-left:6px;
+border-radius:6px;
+min-width:auto;
+flex:none;
 }
 
 .edit-btn{
@@ -128,9 +123,9 @@ background:var(--danger);
 }
 
 #result{
-margin-top:20px;
+margin-top:15px;
 background:var(--card);
-padding:15px;
+padding:14px;
 border-radius:12px;
 box-shadow:0 2px 6px rgba(0,0,0,0.1);
 }
@@ -153,15 +148,17 @@ margin-top:10px;
 
 <textarea id="new-student" placeholder="Enter student names (one per line)" rows="4"></textarea>
 
-<div>
+<div class="btn-row">
 <button onclick="addStudent()">Add</button>
 <button class="danger" onclick="deleteAllStudents()">Delete All</button>
 <button class="secondary" onclick="resetAttendance()">Reset</button>
-<button onclick="sortByName()">Sort A-Z</button>
-<button onclick="sortByDate()">Sort Date</button>
 </div>
 
+<!-- UPDATED ROW -->
+<div class="btn-row">
+<button onclick="sortByName()">Sort A-Z</button>
 <button id="count-toggle" onclick="toggleCount()">Send Count: ON</button>
+</div>
 
 <div class="container" id="students-list"></div>
 
@@ -193,7 +190,7 @@ let studentAddDates=JSON.parse(localStorage.getItem("studentAddDates"))||{};
 let sendCount=JSON.parse(localStorage.getItem("sendCount"));
 if(sendCount===null)sendCount=true;
 
-/* 🔥 NEW: Daily auto reset system */
+/* AUTO RESET */
 let lastResetDate=localStorage.getItem("lastResetDate");
 const today=new Date().toDateString();
 
@@ -203,7 +200,6 @@ localStorage.setItem("lastResetDate",today);
 localStorage.setItem("attendance",JSON.stringify(attendance));
 }
 
-/* check every minute for 12 AM */
 setInterval(()=>{
 const now=new Date();
 if(now.getHours()===0 && now.getMinutes()===0){
